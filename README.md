@@ -1,6 +1,61 @@
 # CarND-Controls-MPC
 Self-Driving Car Engineer Nanodegree Program
 
+## Overview of Model
+Here we implement Model Predictive controller (MPC) to control the steering and 
+throttle of the car so that the car moves in the optimized predicted trajectory . The state of the vehicle [px,py,psi,v,cte,epsi] 
+is calculated based on the present state and the trajectory required for the car to move in. Future prediction of the state is done keeping an intention that the defined cost value is optimized as low as possible.
+
+### State of vehicle at any point is calculated using following parameters
+    1. x component of position is px 
+    2. y component of position is py
+    2. Heading angle of the vehicle psi
+    3. Speed of the vehicle v
+    4. Cross track error cte
+    5. Heading error epsi 
+
+* CTE defines the offset of the vehicle from the center of the road
+* Heading error is te difference between ideal heading and the actual heading
+
+### Actuators of the vehicle are
+    1. Steering Angle
+    2. Throttle (positive for Acceleration and negative for braking ) 
+Using the states of the car, actuator values that have to be fed to the simulator is calculated.
+
+### Model update
+The model updates are perfomed every 125 ms. This delay accounts for the processing time of solver and the latency involved in the communication with the simulator. 
+
+### Tuning N and dt
+    N = 10
+    dt = 0.18
+    
+ * N defines the time over which the trajectory will be predicted from te present position. A value greater than 10 
+ predicted the trajectory for longer distances beyond the reference trajectory. Predicting such long trajectory is computationally expensive.
+ * dt defines the time over which the state is calculated or time elapsed between each step. Decrease in dt only increased the instatbility of the car and increase in the dt slowed down the car. With trial and error, a value of 0.18 was selected. 
+ 
+ ### Preprocessing of data
+ 
+    1. Reference Trajectory points in x 
+    2. Reference Trajectory points in y
+    3. Vehicle position in x 
+    4. Vehicle position in y
+    5. Heading of the vehicle, psi
+    6. Speed of the vehicle, v
+    7. Steering value 
+    8. throttle value
+    
+ These are the incomming data from the simulator and needs preprocessing before predicting the future states. 
+   
+    1. The waypoint coordinates need to be transformed from global to vehicle coordinates. Transformation is done using following equations.
+    
+    ptsx[i] = (shift_x * cos(0-psi) - shift_y * sin(0-psi));
+    ptsy[i] = (shift_x * sin(0-psi) + shift_y * cos(0-psi)); 
+    
+    2. CTE is calculated by fitting the transformed coordinates into 3 degree polynomial equation.
+    
+    3. Re-evaluation of the state considering 125 ms delay, before passing the data to the solver.
+   
+   
 ---
 
 ## Dependencies
